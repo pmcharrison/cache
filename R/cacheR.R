@@ -93,14 +93,19 @@ clear_cache <- function(cache_root = "cache", cache_dir = NULL) {
 }
 
 #' @param path Folder containing RDS files to be loaded
+#' @param fun Optional function to be applied to the cached result, should return an updated version of the result
 #' @export
-load_cache <- function(path) {
+load_cache <- function(path, fun = NULL) {
   files <- list.files(path, pattern = "\\.RDS$")
   hash <- gsub("\\.RDS", "", files)
   env <- new.env()
   if (interactive()) pb <- txtProgressBar(max = length(files), style = 3)
   for (i in seq_along(files)) {
-    env[[hash[i]]] <- readRDS(file.path(path, files[i]))
+    dat <- readRDS(file.path(path, files[i]))
+    if (!is.null(fun)) {
+      dat$result <- fun(dat$result)
+    }
+    env[[hash[i]]] <- dat
     if (interactive()) setTxtProgressBar(pb, i)
   }
   env
