@@ -2,7 +2,7 @@
 NULL
 
 #' @param fun_name Name identifying the function to be cached, in the form of a character string. This will be used as one of the tags in the function's cached files.
-#' @param cache Whether or not to use cache on the current call to the function (includes both loading and saving).
+#' @param cache Whether or not to use cache on the current call to the function (includes both loading and saving). Can alternatively be an environment provided by <load_cache>.
 #' @param cache_root Path to the top-level directory used to store cache results; typically caches from other packages/functions will also be stored in this directory.
 #' @param cache_dir Path to the low-level directory used to store cache results for this particular function, relative to \code{cache_root}.
 #' @param ignore_args Character vector; arguments in the function call that should be ignored when defining cache equality.
@@ -16,12 +16,13 @@ cache <- function(
   expr
 ) {
   parent_env <- parent.frame()
-  cache_info <- if (cache) get_cache_info(
+  cache_info <- if (is.environment(cache) || cache) get_cache_info(
     fun_name = fun_name,
     parent_env = parent_env,
     cache_root = cache_root,
     cache_dir = cache_dir,
-    ignore_args = ignore_args
+    ignore_args = ignore_args,
+    cache = if (is.environment(cache)) cache else NULL
   )
   if (cache && cache_info$result_found) {
     res <- cache_info$result
@@ -36,35 +37,38 @@ cache <- function(
   res
 }
 
-get_cache_info <- function(fun_name, parent_env, cache_root, cache_dir, ignore_args) {
+get_cache_info <- function(fun_name, parent_env, cache_root,
+                           cache_dir, ignore_args, cache = NULL) {
   args <- as.list(parent_env) %>%
     (function(x) x[setdiff(names(x), ignore_args)])
-  cache_file_path <- file.path(
-    cache_root,
-    cache_dir,
-    list(fun_name = fun_name,
-         args = args) %>%
-      (digest::digest) %>%
-      paste(".RDS", sep = "")
-  )
-  result_found <- FALSE
-  result <- NULL
-  if (file.exists(cache_file_path)) {
-    dat_from_file <- readRDS(cache_file_path)
-    # Double-check that the arguments match
-    # (catches rare case of hash collision)
-    if (identical(dat_from_file$args, args) &&
-        identical(dat_from_file$fun_name, fun_name)) {
-      result_found <- TRUE
-      result <- dat_from_file$result
-    }
+  hash <- list(fun_name = fun_name,
+               args = args) %>% (digest::digest)
+
+  dat_loaded <- if (is.environment(cache)) {
+    cache[[hash]]
+  } else {
+    cache_file_path <- file.path(
+      cache_root,
+      cache_dir,
+      hash %>% paste(".RDS", sep = "")
+    )
+    if (file.exists(cache_file_path)) {
+      dat_loaded <- readRDS(cache_file_path)
+    } else NULL
   }
+  # Double-check that the arguments match
+  # (catches rare case of hash collision)
+  result_found <-
+    !is.null(dat_loaded) &&
+    identical(dat_loaded$args, args) &&
+    identical(dat_loaded$fun_name, fun_name)
+
   list(
     fun_name = fun_name,
     args = args,
     cache_file_path = cache_file_path,
     result_found = result_found,
-    result = result
+    result = if (result_found) dat_loaded$result
   )
 }
 
@@ -86,3 +90,16 @@ clear_cache <- function(cache_root = "cache", cache_dir = NULL) {
   unlink(path, recursive = TRUE)
 }
 
+#' @param path Folder containing RDS files to be loaded
+#' @export
+load_cache <- function(path) {
+  files <- list.files(path, pattern = "\\.RDS$")
+  hash <- gsub("\\.RDS", "", files)
+  env <- new.env()
+  if (interactive()) pb <- txtProgressBar(max = length(files), style = 3)
+  for (i in seq_along(files)) {
+    env[[hash[i]]] <- readRDS(file.path(path, files[i]))
+    if (interactive()) setTxtProgressBar(pb, i)
+  }
+  env
+}

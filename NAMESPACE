@@ -2,4 +2,5 @@
 
 export(cache)
 export(clear_cache)
+export(load_cache)
 importFrom(magrittr,"%>%")
