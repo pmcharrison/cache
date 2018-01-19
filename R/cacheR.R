@@ -44,6 +44,8 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
   hash <- list(fun_name = fun_name,
                args = args) %>% (digest::digest)
 
+  cache_file_path <- NULL
+
   dat_loaded <- if (is.environment(cache)) {
     cache[[hash]]
   } else {
