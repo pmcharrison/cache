@@ -24,7 +24,7 @@ cache <- function(
     ignore_args = ignore_args,
     cache = if (is.environment(cache)) cache else NULL
   )
-  if (cache && cache_info$result_found) {
+  if (!is.null(cache) && cache_info$result_found) {
     res <- cache_info$result
   } else {
     # We evaluate the expression in the parent environment,
