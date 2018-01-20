@@ -2,9 +2,10 @@
 NULL
 
 #' @param fun_name Name identifying the function to be cached, in the form of a character string. This will be used as one of the tags in the function's cached files.
-#' @param cache Whether or not to use cache on the current call to the function (includes both loading and saving). Can alternatively be an environment provided by <load_cache>.
+#' @param cache Whether or not to use cache on the current call to the function (includes both loading and saving).
 #' @param cache_root Path to the top-level directory used to store cache results; typically caches from other packages/functions will also be stored in this directory.
 #' @param cache_dir Path to the low-level directory used to store cache results for this particular function, relative to \code{cache_root}.
+#' @param cache_env Optional environment containing cache (currently only loading, not saving, is supported for environments)
 #' @param ignore_args Character vector; arguments in the function call that should be ignored when defining cache equality.
 #' @export
 cache <- function(
@@ -12,19 +13,20 @@ cache <- function(
   cache = TRUE,
   cache_root = "cache",
   cache_dir = fun_name,
+  cache_env = NULL,
   ignore_args = c("cache", "cache_root", "cache_dir"),
   expr
 ) {
   parent_env <- parent.frame()
-  cache_info <- if (is.environment(cache) || cache) get_cache_info(
+  cache_info <- if (cache) get_cache_info(
     fun_name = fun_name,
     parent_env = parent_env,
     cache_root = cache_root,
     cache_dir = cache_dir,
     ignore_args = ignore_args,
-    cache = if (is.environment(cache)) cache else NULL
+    cache_env = cache_env
   )
-  if (!is.null(cache) && cache_info$result_found) {
+  if (!is.null(cache_info) && cache_info$result_found) {
     res <- cache_info$result
   } else {
     # We evaluate the expression in the parent environment,
@@ -38,7 +40,7 @@ cache <- function(
 }
 
 get_cache_info <- function(fun_name, parent_env, cache_root,
-                           cache_dir, ignore_args, cache = NULL) {
+                           cache_dir, ignore_args, cache_env = NULL) {
   args <- as.list(parent_env) %>%
     (function(x) x[setdiff(names(x), ignore_args)])
   hash <- list(fun_name = fun_name,
@@ -46,7 +48,7 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
 
   cache_file_path <- NULL
 
-  dat_loaded <- if (is.environment(cache)) {
+  dat_loaded <- if (!is.null(cache_env)) {
     cache[[hash]]
   } else {
     cache_file_path <- file.path(
