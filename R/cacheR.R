@@ -65,8 +65,8 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
   # (catches rare case of hash collision)
   result_found <-
     !is.null(dat_loaded) &&
-    identical(dat_loaded$args, args) &&
-    identical(dat_loaded$fun_name, fun_name)
+    all.equal(dat_loaded$args, args) &&
+    all.equal(dat_loaded$fun_name, fun_name)
 
   list(
     fun_name = fun_name,
