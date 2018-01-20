@@ -7,6 +7,7 @@ NULL
 #' @param cache_dir Path to the low-level directory used to store cache results for this particular function, relative to \code{cache_root}.
 #' @param cache_env Optional environment containing cache to use instead of file-based system
 #' @param ignore_args Character vector; arguments in the function call that should be ignored when defining cache equality.
+#' @param stop_on_missing Logical; if TRUE, then the function will throw an error if it can't find any cache for its results. Useful if you want to ensure that the function is using cache instead of recomputing.
 #' @export
 cache <- function(
   fun_name,
@@ -15,6 +16,7 @@ cache <- function(
   cache_dir = fun_name,
   cache_env = NULL,
   ignore_args = c("cache", "cache_root", "cache_dir", "cache_env"),
+  stop_on_missing = FALSE,
   expr
 ) {
   parent_env <- parent.frame()
@@ -33,6 +35,7 @@ cache <- function(
     # i.e. the body of the function that called cache().
     # This prevents namespace clashes with temporary
     # variables created within the cache() function.
+    if (stop_on_missing) stop("Cached result not found.")
     res <- eval(expr, envir = parent_env)
     if (cache) save_cache(result = res, cache_info = cache_info,
                           cache_env = cache_env)
@@ -79,7 +82,6 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
 }
 
 save_cache <- function(result, cache_info, cache_env) {
-  browser()
   out <- list(fun_name = cache_info$fun_name,
               args = cache_info$args,
               result = result)
