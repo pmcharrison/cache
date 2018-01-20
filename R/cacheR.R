@@ -49,7 +49,7 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
   cache_file_path <- NULL
 
   dat_loaded <- if (!is.null(cache_env)) {
-    cache[[hash]]
+    cache_env[[hash]]
   } else {
     cache_file_path <- file.path(
       cache_root,
