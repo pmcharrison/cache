@@ -5,7 +5,7 @@ NULL
 #' @param cache Whether or not to use cache on the current call to the function (includes both loading and saving).
 #' @param cache_root Path to the top-level directory used to store cache results; typically caches from other packages/functions will also be stored in this directory.
 #' @param cache_dir Path to the low-level directory used to store cache results for this particular function, relative to \code{cache_root}.
-#' @param cache_env Optional environment containing cache (currently only loading, not saving, is supported for environments)
+#' @param cache_env Optional environment containing cache to use instead of file-based system
 #' @param ignore_args Character vector; arguments in the function call that should be ignored when defining cache equality.
 #' @export
 cache <- function(
@@ -34,7 +34,8 @@ cache <- function(
     # This prevents namespace clashes with temporary
     # variables created within the cache() function.
     res <- eval(expr, envir = parent_env)
-    if (cache) save_cache(result = res, cache_info = cache_info)
+    if (cache) save_cache(result = res, cache_info = cache_info,
+                          cache_env = cache_env)
   }
   res
 }
@@ -70,18 +71,23 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
   list(
     fun_name = fun_name,
     args = args,
+    hash = hash,
     cache_file_path = cache_file_path,
     result_found = result_found,
     result = if (result_found) dat_loaded$result
   )
 }
 
-save_cache <- function(result, cache_info) {
-  R.utils::mkdirs(dirname(cache_info$cache_file_path))
-  saveRDS(list(fun_name = cache_info$fun_name,
-               args = cache_info$args,
-               result = result),
-          cache_info$cache_file_path)
+save_cache <- function(result, cache_info, cache_env) {
+  out <- list(fun_name = cache_info$fun_name,
+              args = cache_info$args,
+              result = result)
+  if (is.null(cache_env)) {
+    R.utils::mkdirs(dirname(cache_info$cache_file_path))
+    saveRDS(out, cache_info$cache_file_path)
+  } else {
+    cache_env[[cache_info$hash]] <- out
+  }
 }
 
 #' @export
