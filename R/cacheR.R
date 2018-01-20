@@ -79,6 +79,7 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
 }
 
 save_cache <- function(result, cache_info, cache_env) {
+  message("Saving to cache")
   out <- list(fun_name = cache_info$fun_name,
               args = cache_info$args,
               result = result)
