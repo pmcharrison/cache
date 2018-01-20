@@ -14,7 +14,7 @@ cache <- function(
   cache_root = "cache",
   cache_dir = fun_name,
   cache_env = NULL,
-  ignore_args = c("cache", "cache_root", "cache_dir"),
+  ignore_args = c("cache", "cache_root", "cache_dir", "cache_env"),
   expr
 ) {
   parent_env <- parent.frame()
@@ -79,7 +79,7 @@ get_cache_info <- function(fun_name, parent_env, cache_root,
 }
 
 save_cache <- function(result, cache_info, cache_env) {
-  message("Saving to cache")
+  browser()
   out <- list(fun_name = cache_info$fun_name,
               args = cache_info$args,
               result = result)
