@@ -1,3 +1,7 @@
+^\.github$
+^LICENSE\.md$
+^\.travis\.yml$
+^appveyor\.yml$
 ^README\.Rmd$
 ^\.cache$
 ^.*\.Rproj$

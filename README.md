@@ -3,6 +3,14 @@
 
 # cache - Caching function outputs
 
+[![AppVeyor build
+status](https://ci.appveyor.com/api/projects/status/github/pmcharrison/cache?branch=master&svg=true)](https://ci.appveyor.com/project/pmcharrison/cache)
+[![Travis build
+status](https://travis-ci.org/pmcharrison/cache.svg?branch=master)](https://travis-ci.org/pmcharrison/cache)
+[![Coverage
+status](https://coveralls.io/repos/github/pmcharrison/cache/badge.svg)](https://coveralls.io/r/pmcharrison/cache?branch=master)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+
 `cache` is an R package for function output caching, or memoisation.
 
 The
@@ -43,7 +51,7 @@ The first time it’s called, the main body of the function is run.
 ``` r
 f(1) 
 #> Computing...
-#> [1] 1.0000000 0.7575416
+#> [1] 1.0000000 0.8631219
 ```
 
 The second time it’s called, the result is loaded from the file-based
@@ -51,7 +59,7 @@ cache.
 
 ``` r
 f(1)
-#> [1] 1.0000000 0.7575416
+#> [1] 1.0000000 0.8631219
 ```
 
 Our function `f` can be called with various caching options - see
@@ -68,7 +76,7 @@ If we call `f` with cache disabled, we should get a different result.
 ``` r
 f(1, .cache = FALSE) # produces a different result
 #> Computing...
-#> [1]  1.0000000 -0.3510109
+#> [1] 1.0000000 0.7119155
 ```
 
 We can also define an in-memory cache. In-memory caches are faster than
@@ -78,10 +86,10 @@ the default file-based caches.
 x <- cache_memory()
 f(1, .cache_memory = x)
 #> Computing...
-#> [1] 1.0000000 0.5139942
+#> [1]  1.0000000 -0.7052472
 
 f(1, .cache_memory = x)
-#> [1] 1.0000000 0.5139942
+#> [1]  1.0000000 -0.7052472
 
 as.list(x)[[1]]
 #> $fun_name
@@ -93,7 +101,7 @@ as.list(x)[[1]]
 #> 
 #> 
 #> $result
-#> [1] 1.0000000 0.5139942
+#> [1]  1.0000000 -0.7052472
 ```
 
 When we’re done, we can clear the cache.

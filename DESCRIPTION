@@ -4,16 +4,18 @@ Version: 0.1.0
 Authors@R: person("Peter", "Harrison", email = "pmc.harrison@gmail.com", role = c("aut", "cre"))
 Description: This package provides a mechanism for caching (memoisation) of function outputs to avoid repeated computation. In contrast to pre-existing packages, this mechanism is designed to allow the memoisation of functions as part of the package building process.
 Depends: R (>= 3.4.0)
-License: GPL-2
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Suggests: knitr,
-    rmarkdown,
-    testthat
+Suggests: 
+    knitr (>= 1.20),
+    rmarkdown (>= 1.10),
+    testthat (>= 2.0.0),
+    covr (>= 3.2.0)
 VignetteBuilder: knitr
 Imports: 
-    digest,
+    digest (>= 0.6.18),
     utils,
-    R.utils,
+    R.utils (>= 2.7.0),
     methods
 RoxygenNote: 6.1.0
