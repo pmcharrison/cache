@@ -1,9 +1,9 @@
-Package: cacheR
+Package: cache
 Title: Caching function outputs
 Version: 0.1.0
 Authors@R: person("Peter", "Harrison", email = "pmc.harrison@gmail.com", role = c("aut", "cre"))
 Description: This package provides a mechanism for caching (memoisation) of function outputs to avoid repeated computation. In contrast to pre-existing packages, this mechanism is designed to allow the memoisation of functions as part of the package building process.
-Depends: R (>= 3.4.2)
+Depends: R (>= 3.4.0)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
@@ -11,5 +11,9 @@ Suggests: knitr,
     rmarkdown,
     testthat
 VignetteBuilder: knitr
-Imports: R.utils
-RoxygenNote: 6.0.1
+Imports: 
+    digest,
+    utils,
+    R.utils,
+    methods
+RoxygenNote: 6.1.0

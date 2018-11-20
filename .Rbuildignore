@@ -1,3 +1,5 @@
+^README\.Rmd$
+^\.cache$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 README.md

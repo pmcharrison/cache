@@ -1,4 +1,7 @@
 library(testthat)
-library(cacheR)
+library(cache)
 
-test_check("cacheR")
+clear_cache()
+set.seed(1)
+
+test_check("cache")
