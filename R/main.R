@@ -67,7 +67,8 @@ cache <- function(
 ) {
   parent_env <- parent.frame()
   pkg_name <- utils::packageName(parent_env)
-  fun_name <- deparse(sys.call(-1)[[1]])
+  fun_name <- gsub("^.*::", "",
+                   deparse(sys.call(-1)[[1]]))
   if (is.null(.cache_dir)) {
     .cache_dir <- if (is.null(pkg_name))
       file.path(".cache", "global", fun_name) else
